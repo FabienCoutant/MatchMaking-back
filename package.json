@@ -19,6 +19,7 @@
   "homepage": "https://github.com/FabienCoutant/MatchMaking#readme",
   "devDependencies": {
     "express": "^4.17.1",
-    "mocha": "^9.1.1"
+    "mocha": "^9.1.1",
+    "ws": "^8.2.2"
   }
 }
