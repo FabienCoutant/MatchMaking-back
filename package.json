@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/FabienCoutant/MatchMaking/issues"
   },
-  "homepage": "https://github.com/FabienCoutant/MatchMaking#readme"
+  "homepage": "https://github.com/FabienCoutant/MatchMaking#readme",
+  "devDependencies": {
+    "mocha": "^9.1.1"
+  }
 }
