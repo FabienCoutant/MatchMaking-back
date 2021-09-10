@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --reporter spec --timeout 20000 ",
-    "start": "tsc && node ./build/src/server.js",
+    "server": "tsc && npm run start",
     "test-client": "node localRun.js",
-    "heroku" : "git push heroku master"
+    "heroku" : "git push heroku master",
+    "start": "node ./build/src/server.js"
   },
   "repository": {
     "type": "git",
