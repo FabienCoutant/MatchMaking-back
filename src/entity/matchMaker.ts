@@ -48,7 +48,6 @@ export class MatchMaker<P> {
 
     private nextGameId: number;
 
-    protected checkInterval: number; // Time to check for players, value in milliseconds defaults to 5000
     protected instantMatchingRankedLevelDelta: number;
     protected maxRankedLevelDelta: number;
     protected maxWaitingTime: number;
@@ -75,7 +74,6 @@ export class MatchMaker<P> {
 
         this.nextGameId = Number.MIN_SAFE_INTEGER;
 
-        this.checkInterval = (options && options.checkInterval && options.checkInterval > 0 && options.checkInterval) || 3000;
         this.maxRankedLevelDelta = (options && options.maxRankedLevelDelta && options.maxRankedLevelDelta > 0 && options.maxRankedLevelDelta) || 20;
         this.instantMatchingRankedLevelDelta = (options && options.instantMatchingRankedLevelDelta && options.instantMatchingRankedLevelDelta > 0 && options.instantMatchingRankedLevelDelta) || 5;
         this.maxWaitingTime = (options && options.maxWaitingTime && options.maxWaitingTime >= 10000 && options.maxWaitingTime) || 300000; //by default 5 minutes and must be > 10s
@@ -136,10 +134,9 @@ export class MatchMaker<P> {
                 let p2 = this.getPlayerByQueueId(y);
                 if (this.isMatch(p1.player, p2.player, this.instantMatchingRankedLevelDelta)) {
                     this.queue.splice(i, 1);
-                    this.queue.splice(y, 1);
+                    this.queue.splice(y-1, 1);
                     playersMatched.push(p1.player);
                     playersMatched.push(p2.player);
-                    console.log(this.queue);
                     this.resolver(playersMatched);
                     playersMatched = [];
                     closedPlayerRankedLevel={
@@ -149,11 +146,7 @@ export class MatchMaker<P> {
                     }
                     break;
                 } else {
-                    console.log(Date.now() - p2.timeJoined >= this.maxWaitingTime)
-                    console.log(Date.now() - p2.timeJoined)
-                    console.log("maxWaitingTime",this.maxWaitingTime)
                     if (p2 && Date.now() - p2.timeJoined >= this.maxWaitingTime) {
-                        console.log("too long");
                         this.rejected(p2.player);
                         break;
                     } else if (isWaitingToLong) {

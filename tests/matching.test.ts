@@ -24,7 +24,6 @@ describe("---- Matching ----", () => {
                 p => p.getId(),
                 p => p.getRankedLevel(),
                 {
-                    checkInterval: 2000,
                     instantMatchingWaitingTime: 2000,
                     maxWaitingTime: 10000,
                     instantMatchingRankedLevelDelta: 5,
@@ -173,7 +172,6 @@ describe("---- Matching ----", () => {
                 p => p.getId(),
                 p => p.getRankedLevel(),
                 {
-                    checkInterval: 2000,
                     instantMatchingWaitingTime: 2000,
                     maxWaitingTime: 10000,
                     instantMatchingRankedLevelDelta: 5,
@@ -198,7 +196,7 @@ describe("---- Matching ----", () => {
 
 
         });
-        xit("should instant match 2 players with rankedLevel delta less than 5", () => {
+        it("should instant match 2 players with rankedLevel delta less than 5", () => {
             //setup Bob player
             const bobData: IPlayerData = {
                 id: Math.floor(Math.random() * 1000),
@@ -215,10 +213,11 @@ describe("---- Matching ----", () => {
             matchMaking.push(bob)
 
             matchMaking.makeMatch();
+            expect(matchMaking.playersInQueue).eq(0);
             expect(matchedPlayers).to.have.length(2);
 
         });
-        xit("should not match 2 players with rankedLevel delta greater than 20", () => {
+        it("should not match 2 players with rankedLevel delta greater than 20", () => {
             //setup Bob player
             const bobData: IPlayerData = {
                 id: Math.floor(Math.random() * 1000),
@@ -235,10 +234,11 @@ describe("---- Matching ----", () => {
             matchMaking.push(bob)
 
             matchMaking.makeMatch();
+            expect(matchMaking.playersInQueue).eq(2);
             expect(matchedPlayers).to.have.length(0);
 
         });
-        xit("should match players 1 and 3 with rankedLevel delta equal or less than 5", () => {
+        it("should match players 1 and 3 with rankedLevel delta equal or less than 5", () => {
             //setup Bob player
             const bobData: IPlayerData = {
                 id: Math.floor(Math.random() * 1000),
@@ -270,12 +270,13 @@ describe("---- Matching ----", () => {
             matchMaking.push(carol)
 
             matchMaking.makeMatch();
+            expect(matchMaking.playersInQueue).eq(1);
             expect(matchedPlayers).to.have.length(2);
             expect(matchedPlayers[0].getId()).eq(aliceData.id)
             expect(matchedPlayers[1].getId()).eq(carolData.id)
 
         });
-        xit("should match 2 players after 2s with rankedLevel delta greater than 5 but equal or less than 20", async () => {
+        it("should match 2 players after 2s with rankedLevel delta greater than 5 but equal or less than 20", async () => {
             //setup Bob player
             const bobData: IPlayerData = {
                 id: Math.floor(Math.random() * 1000),
@@ -299,13 +300,14 @@ describe("---- Matching ----", () => {
             await new Promise(r => setTimeout(r, 2000));
             console.log("Waited 2s")
             matchMaking.makeMatch();
+            expect(matchMaking.playersInQueue).eq(0);
             expect(matchedPlayers).to.have.length(2);
             expect(matchedPlayers[0].getId()).eq(aliceData.id)
             expect(matchedPlayers[1].getId()).eq(bobData.id)
 
 
         });
-        xit("should match players 1 and 3 after 2s with rankedLevel delta greater than 5 with the closest with the first user and let's the other in queue",async ()=>{
+        it("should match players 1 and 3 after 2s with rankedLevel delta greater than 5 with the closest with the first user and let's the other in queue",async ()=>{
             //setup Bob player
             const bobData: IPlayerData = {
                 id: Math.floor(Math.random() * 1000),
@@ -344,6 +346,7 @@ describe("---- Matching ----", () => {
             console.log("Waited 2s")
 
             matchMaking.makeMatch();
+            expect(matchMaking.playersInQueue).eq(1);
             expect(matchedPlayers).to.have.length(2);
             expect(matchedPlayers[0].getId()).eq(aliceData.id)
             expect(matchedPlayers[1].getId()).eq(carolData.id)
@@ -356,22 +359,23 @@ describe("---- Matching ----", () => {
             await new Promise(r => setTimeout(r, 10000));
             console.log("Waited 10s")
 
-            // //setup Bob player
-            // const bobData: IPlayerData = {
-            //     id: Math.floor(Math.random() * 1000),
-            //     rankedLevel: 50,
-            //     name: "Bob",
-            //     spaceShip: ["Jumper", "Prospector", "Space Digger"]
-            // };
-            // const bob = new Player(bobData);
-            // expect(bob.getId()).eq(bobData.id);
-            // expect(bob.getRankedLevel()).eq(bobData.rankedLevel);
-            // expect(bob.getName()).eq(bobData.name);
-            // expect(bob.getSpaceShipById(0)).eq(bobData.spaceShip[0]);
-            // expect(bob.getSpaceShipList()).eq(bobData.spaceShip);
-            // matchMaking.push(bob)
+            //setup Bob player
+            const bobData: IPlayerData = {
+                id: Math.floor(Math.random() * 1000),
+                rankedLevel: 50,
+                name: "Bob",
+                spaceShip: ["Jumper", "Prospector", "Space Digger"]
+            };
+            const bob = new Player(bobData);
+            expect(bob.getId()).eq(bobData.id);
+            expect(bob.getRankedLevel()).eq(bobData.rankedLevel);
+            expect(bob.getName()).eq(bobData.name);
+            expect(bob.getSpaceShipById(0)).eq(bobData.spaceShip[0]);
+            expect(bob.getSpaceShipList()).eq(bobData.spaceShip);
+            matchMaking.push(bob)
 
             matchMaking.makeMatch();
+            expect(matchMaking.playersInQueue).eq(1);
             expect(rejectedPlayer!.getId()).eq(aliceData.id);
 
         });
