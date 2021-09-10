@@ -1,8 +1,6 @@
 let errorMessages = {
     playerInQueue: "Player is already in queue",
     playerNotInQueue: "Player is not in queue",
-    playerNotInGame: "Player is not in game",
-    gameDoesNotExists: "Game does not exists"
 };
 
 export enum IPlayerState {
@@ -195,10 +193,12 @@ export class MatchMaker<P> {
     private getRankedLevelDelta = (playerA: P, playerB: P): number => {
         const rankedLevelA: number = this.getRankedLevel(playerA);
         const rankedLevelB: number = this.getRankedLevel(playerB);
-        if (rankedLevelA > rankedLevelB) {
-            return rankedLevelA - rankedLevelB;
-        } else if (rankedLevelB > rankedLevelA) {
-            return rankedLevelB - rankedLevelA;
+        if(playerA!==playerB){
+            if (rankedLevelA >= rankedLevelB) {
+                return rankedLevelA - rankedLevelB;
+            } else if (rankedLevelB > rankedLevelA) {
+                return rankedLevelB - rankedLevelA;
+            }
         }
         return rankedLevelA;
     }

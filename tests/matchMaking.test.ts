@@ -142,7 +142,41 @@ describe("---- Matching ----", () => {
             expect(matchMaking.getPlayerState(bob)).eq(IPlayerState.NONE);
             expect(matchMaking.getPlayerState(carol)).eq(IPlayerState.INQUEUE);
         })
-        it("should revert ")
+        it("should revert to add user already in queue",()=>{
+            //setup Alice player
+            const aliceData: IPlayerData = {
+                id: Math.floor(Math.random() * 1000),
+                rankedLevel: Math.floor(Math.random() * 100),
+                name: "Alice",
+                spaceShip: ["Jumper", "Prospector", "Space Digger"]
+            };
+            const alice = new Player(aliceData);
+            expect(alice.getId()).eq(aliceData.id);
+            expect(alice.getRankedLevel()).eq(aliceData.rankedLevel);
+            expect(alice.getName()).eq(aliceData.name);
+            expect(alice.getSpaceShipById(0)).eq(aliceData.spaceShip[0]);
+            expect(alice.getSpaceShipList()).eq(aliceData.spaceShip);
+            matchMaking.push(alice)
+
+            expect(()=>matchMaking.push(alice)).to.throw("Player is already in queue")
+        })
+        it("should revert to leave user in queue that not exist",()=>{
+            //setup Alice player
+            const aliceData: IPlayerData = {
+                id: Math.floor(Math.random() * 1000),
+                rankedLevel: Math.floor(Math.random() * 100),
+                name: "Alice",
+                spaceShip: ["Jumper", "Prospector", "Space Digger"]
+            };
+            const alice = new Player(aliceData);
+            expect(alice.getId()).eq(aliceData.id);
+            expect(alice.getRankedLevel()).eq(aliceData.rankedLevel);
+            expect(alice.getName()).eq(aliceData.name);
+            expect(alice.getSpaceShipById(0)).eq(aliceData.spaceShip[0]);
+            expect(alice.getSpaceShipList()).eq(aliceData.spaceShip);
+
+            expect(()=>matchMaking.leaveQueue(alice)).to.throw("Player is not in queue")
+        })
     });
     describe("  -- Matching --", () => {
         let matchMaking: any;
