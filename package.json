@@ -14,7 +14,7 @@
     "url": "git+https://github.com/FabienCoutant/MatchMaking.git"
   },
   "engines": {
-    "node": "17.x",
+    "node": "16.6.x",
     "npm": "7.x"
   },
   "keywords": [],
