@@ -7,7 +7,7 @@
     "test": "mocha --reporter spec --timeout 20000 ",
     "server": "tsc && npm run start",
     "test-client": "node localRun.js",
-    "heroku" : "git push heroku master",
+    "heroku": "git push heroku master",
     "start": "node ./dist/src/server.js"
   },
   "repository": {

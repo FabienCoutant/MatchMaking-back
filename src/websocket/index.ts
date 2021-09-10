@@ -2,6 +2,7 @@ import * as WebSocket from "ws";
 import {ServerOptions} from "ws";
 import {Player} from "../entity/player";
 import {MatchMakingController} from "../controller/MatchMakingController";
+import * as http from "http";
 
 export interface MatchingPlayer {
     player: Player;
@@ -52,7 +53,7 @@ export const socketServer = (serverToBind: ServerOptions) => {
         options
     )
 
-    wss.on('connection', (ws: WebSocket, req) => {
+    wss.on('connection', (ws: WebSocket, req:http.IncomingMessage) => {
 
         //connection is up, let's add a simple event
         ws.on('message', (message: JSON) => {
