@@ -57,6 +57,7 @@ export const socketServer = (serverToBind: ServerOptions) => {
         //connection is up, let's add a simple event
         ws.on('message', (message: JSON) => {
             //log the received message and send it back to the client
+            console.log(JSON.parse(message.toString()));
             const player = JSON.parse(message.toString());
             const p: Player = new Player(player)
             if (!playersPool.has(p.getId())) {
@@ -65,6 +66,7 @@ export const socketServer = (serverToBind: ServerOptions) => {
             } else {
                 ws.close();
             }
+            console.log("Player in queue",matchMaking.playersInQueue);
         });
 
         const ip = req.socket.remoteAddress ? req.socket.remoteAddress.slice(7) : '';
