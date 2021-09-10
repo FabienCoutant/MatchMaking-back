@@ -16,9 +16,9 @@ export const socketServer = (serverToBind: ServerOptions) => {
     const wss = new WebSocket.Server(serverToBind);
     const playersPool = new Map<number, MatchingPlayer>();
     const options = {
-        checkInterval: 2000,
-        instantMatchingWaitingTime: 2000,
-        maxWaitingTime: 10000,
+        checkInterval: 500,
+        instantMatchingWaitingTime: 5000,
+        maxWaitingTime: 30000,
         instantMatchingRankedLevelDelta: 5,
         maxRankedLevelDelta: 20
     }
