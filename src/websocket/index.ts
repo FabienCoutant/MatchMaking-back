@@ -27,8 +27,16 @@ export const socketServer = (serverToBind: ServerOptions) => {
         const playerPoolB = playersPool.get(players[1].getId());
         console.log("players Matched",players)
         if (playerPoolA && playerPoolB) {
-            playerPoolA.socket.send(`${playerPoolA.player.getId()} you were matched with ${playerPoolB.player.getId()}`);
-            playerPoolB.socket.send(`${playerPoolB.player.getId()} you were matched with ${playerPoolA.player.getId()}`);
+            playerPoolA.socket.send(`
+            ${playerPoolA.player.getName()} (id : ${playerPoolA.player.getId()}, rankedLevel : ${playerPoolA.player.getRankedLevel()})
+            you were matched with
+            ${playerPoolB.player.getName()} (id : ${playerPoolB.player.getId()}, rankedLevel : ${playerPoolB.player.getRankedLevel()})
+            `);
+            playerPoolB.socket.send(`
+            ${playerPoolB.player.getName()} (id : ${playerPoolB.player.getId()}, rankedLevel : ${playerPoolB.player.getRankedLevel()})
+            you were matched with
+            ${playerPoolA.player.getName()} (id : ${playerPoolA.player.getId()}, rankedLevel : ${playerPoolA.player.getRankedLevel()})
+            `);
             playerPoolA.socket.close();
             playerPoolB.socket.close();
             playersPool.delete(playerPoolA.player.getId());
@@ -39,7 +47,9 @@ export const socketServer = (serverToBind: ServerOptions) => {
     const removePlayer = (player: Player) => {
         const playerPool = playersPool.get(player.getId());
         if (playerPool) {
-            playerPool.socket.send(`${playerPool.player.getId()} didn't find a match`);
+            playerPool.socket.send(`
+            ${playerPool.player.getName()} (id : ${playerPool.player.getId()}, rankedLevel : ${playerPool.player.getRankedLevel()}) didn't find a match
+            `);
             playerPool.socket.close();
             playersPool.delete(playerPool.player.getId());
         }
@@ -64,14 +74,13 @@ export const socketServer = (serverToBind: ServerOptions) => {
             if (!playersPool.has(p.getId())) {
                 playersPool.set(p.getId(), {socket: ws, player: p});
                 matchMaking.push(p);
+                console.log("Player in queue",matchMaking.playersInQueue);
+                ws.send("Searching your opponent")
             } else {
                 ws.close();
             }
-            console.log("Player in queue",matchMaking.playersInQueue);
         });
-
         const ip = req.socket.remoteAddress ? req.socket.remoteAddress.slice(7) : '';
-        console.log(req.socket.remoteAddress)
         console.log('received connection from: ' + ip);
         ws.send("connected")
     });
