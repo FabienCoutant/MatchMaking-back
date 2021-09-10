@@ -1,7 +1,7 @@
 # MatchMaking
 NodeJS/Websocket matchmaking
 
-#Matchmaking algo
+# Matchmaking algo
 - Match instant 2 players if their rankedLevel delta is equal or less than `instantMatchingRankedLevelDelta` option value
 - Match two players after the waiting time of one user is equal or greater than `instantMatchingRankedLevelDelta` 
 option value and rankedLevel delta is equal or less than `maxRankedLevelDelta` option value
