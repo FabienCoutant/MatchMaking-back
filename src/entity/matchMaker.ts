@@ -33,7 +33,7 @@ interface ClosestPlayer<P> {
 }
 
 export class MatchMaker<P> {
-    protected resolver: (players: P[]) => void;
+    protected resolver: (players: P[],text:string) => void;
     protected rejected: (player: P) => void;
     protected getKey: (player: P) => number;
     protected getRankedLevel: (player: P) => number;
@@ -53,15 +53,15 @@ export class MatchMaker<P> {
     }
 
     constructor(
-        resolver: (players: P[]) => void,
+        resolver: (players: P[],message:string) => void,
         rejected: (player: P) => void,
         getKey: (player: P) => number,
         getRankedLevel: (player: P) => number,
         options?: IMatchMakerOptions
     ) {
-        this.resolver = (players: P[]) => {
+        this.resolver = (players: P[],message:string) => {
             this.inGame.push({players, id: this.nextGameId++});
-            resolver(players);
+            resolver(players,message);
         };
         this.rejected = (player: P) => {
             this.leaveQueue(player);
@@ -121,10 +121,10 @@ export class MatchMaker<P> {
 
     public makeMatch = (): void => {
         let playersMatched: P[] = [];
-        let closedPlayerRankedLevel: ClosestPlayer<P>;
+        let closestPlayerRankedLevel: ClosestPlayer<P>;
         for(let i=0;i<this.queue.length;i++){
             let p1 = this.getPlayerByQueueId(i);
-            closedPlayerRankedLevel={
+            closestPlayerRankedLevel={
                 player:p1.player,
                 queueIndex:i,
                 delta:0
@@ -137,9 +137,9 @@ export class MatchMaker<P> {
                     this.queue.splice(y-1, 1);
                     playersMatched.push(p1.player);
                     playersMatched.push(p2.player);
-                    this.resolver(playersMatched);
+                    this.resolver(playersMatched,"Instant match");
                     playersMatched = [];
-                    closedPlayerRankedLevel={
+                    closestPlayerRankedLevel={
                         player:p1.player,
                         queueIndex:i,
                         delta:0
@@ -151,16 +151,16 @@ export class MatchMaker<P> {
                         break;
                     } else if (isWaitingToLong) {
                         const delta = this.getRankedLevelDelta(p1.player,p2.player)
-                        if(closedPlayerRankedLevel.player!=p2.player){
-                            if(delta < closedPlayerRankedLevel.delta || closedPlayerRankedLevel.delta===0){
-                                closedPlayerRankedLevel={
+                        if(closestPlayerRankedLevel.player!=p2.player){
+                            if(delta < closestPlayerRankedLevel.delta || closestPlayerRankedLevel.delta===0){
+                                closestPlayerRankedLevel={
                                     player: p2.player,
                                     queueIndex : y,
                                     delta
                                 };
                             }
                         }else{
-                            closedPlayerRankedLevel={
+                            closestPlayerRankedLevel={
                                 player: p2.player,
                                 queueIndex : y,
                                 delta
@@ -169,12 +169,12 @@ export class MatchMaker<P> {
                     }
                 }
             }
-            if(closedPlayerRankedLevel.player !== p1.player){
+            if(closestPlayerRankedLevel.player !== p1.player){
                 this.queue.splice(i, 1);
-                this.queue.splice(closedPlayerRankedLevel.queueIndex-1, 1);
+                this.queue.splice(closestPlayerRankedLevel.queueIndex-1, 1);
                 playersMatched.push(p1.player);
-                playersMatched.push(closedPlayerRankedLevel.player);
-                this.resolver(playersMatched);
+                playersMatched.push(closestPlayerRankedLevel.player);
+                this.resolver(playersMatched,"Closest opponent");
                 playersMatched = [];
             }
         }

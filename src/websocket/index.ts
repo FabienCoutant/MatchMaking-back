@@ -22,17 +22,20 @@ export const socketServer = (serverToBind: ServerOptions) => {
         instantMatchingRankedLevelDelta: 5,
         maxRankedLevelDelta: 20
     }
-    const launchBattle = async (players: Player[]) => {
+    const launchBattle = async (players: Player[],message:string) => {
         const playerPoolA = playersPool.get(players[0].getId());
         const playerPoolB = playersPool.get(players[1].getId());
-        console.log("players Matched",players)
+        console.log("Matching method: ", message)
+        console.log("players Matched ",players)
         if (playerPoolA && playerPoolB) {
             playerPoolA.socket.send(`
+            Matching method : ${message}
             ${playerPoolA.player.getName()} (id : ${playerPoolA.player.getId()}, rankedLevel : ${playerPoolA.player.getRankedLevel()})
             you were matched with
             ${playerPoolB.player.getName()} (id : ${playerPoolB.player.getId()}, rankedLevel : ${playerPoolB.player.getRankedLevel()})
             `);
             playerPoolB.socket.send(`
+            Matching method : ${message}
             ${playerPoolB.player.getName()} (id : ${playerPoolB.player.getId()}, rankedLevel : ${playerPoolB.player.getRankedLevel()})
             you were matched with
             ${playerPoolA.player.getName()} (id : ${playerPoolA.player.getId()}, rankedLevel : ${playerPoolA.player.getRankedLevel()})
