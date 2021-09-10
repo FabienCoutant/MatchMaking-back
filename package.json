@@ -6,11 +6,16 @@
   "scripts": {
     "test": "mocha --reporter spec --timeout 20000 ",
     "server": "tsc && node ./build/src/server.js",
-    "test-client": "node localRun.js"
+    "test-client": "node localRun.js",
+    "heroku" : "git push heroku master"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FabienCoutant/MatchMaking.git"
+  },
+  "engines": {
+    "node": "17.x",
+    "npm": "7.x"
   },
   "keywords": [],
   "author": "",

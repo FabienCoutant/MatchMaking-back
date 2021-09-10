@@ -8,7 +8,7 @@ app.set("port", process.env.PORT || 8999);
 //initialize a simple http server
 const server = http.createServer(app);
 //initialize the WebSocket server instance
-(0, websocket_1.socketServer)({ server });
+websocket_1.socketServer({ server });
 //start server
 server.listen(app.get("port"), () => {
     console.log(`Server started on port : ${app.get("port")}`);

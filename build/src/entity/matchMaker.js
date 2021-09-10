@@ -4,8 +4,6 @@ exports.MatchMaker = exports.IPlayerState = void 0;
 let errorMessages = {
     playerInQueue: "Player is already in queue",
     playerNotInQueue: "Player is not in queue",
-    playerNotInGame: "Player is not in game",
-    gameDoesNotExists: "Game does not exists"
 };
 var IPlayerState;
 (function (IPlayerState) {
@@ -32,13 +30,10 @@ class MatchMaker {
             return this.queue[id];
         };
         this.makeMatch = () => {
-            console.log("run");
-            console.log(this.queue.length);
             let playersMatched = [];
             let closedPlayerRankedLevel;
             for (let i = 0; i < this.queue.length; i++) {
                 let p1 = this.getPlayerByQueueId(i);
-                console.log(this.getKey(p1.player));
                 closedPlayerRankedLevel = {
                     player: p1.player,
                     queueIndex: i,
@@ -47,7 +42,6 @@ class MatchMaker {
                 let isWaitingToLong = (Date.now() - p1.timeJoined >= this.instantMatchingWaitingTime);
                 for (let y = i; y < this.queue.length; y++) {
                     let p2 = this.getPlayerByQueueId(y);
-                    console.log(this.getKey(p2.player));
                     if (this.isMatch(p1.player, p2.player, this.instantMatchingRankedLevelDelta)) {
                         this.queue.splice(i, 1);
                         this.queue.splice(y - 1, 1);
