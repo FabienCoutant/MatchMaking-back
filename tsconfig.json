@@ -2,6 +2,9 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
+    "lib": [
+      "es5", "es6", "dom", "dom.iterable"
+    ],
     "outDir": "build",
     "strict": true,
     "sourceMap": true,
