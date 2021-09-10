@@ -29,11 +29,11 @@ interface Queue<P> {
 interface ClosestPlayer<P> {
     player: P;
     queueIndex: number;
-    delta:number
+    delta: number
 }
 
 export class MatchMaker<P> {
-    protected resolver: (players: P[],text:string) => void;
+    protected resolver: (players: P[], text: string) => void;
     protected rejected: (player: P) => void;
     protected getKey: (player: P) => number;
     protected getRankedLevel: (player: P) => number;
@@ -53,15 +53,15 @@ export class MatchMaker<P> {
     }
 
     constructor(
-        resolver: (players: P[],message:string) => void,
+        resolver: (players: P[], message: string) => void,
         rejected: (player: P) => void,
         getKey: (player: P) => number,
         getRankedLevel: (player: P) => number,
         options?: IMatchMakerOptions
     ) {
-        this.resolver = (players: P[],message:string) => {
+        this.resolver = (players: P[], message: string) => {
             this.inGame.push({players, id: this.nextGameId++});
-            resolver(players,message);
+            resolver(players, message);
         };
         this.rejected = (player: P) => {
             this.leaveQueue(player);
@@ -115,66 +115,59 @@ export class MatchMaker<P> {
         return index;
     }
 
-    public getPlayerByQueueId = (id:number): Queue<P> => {
+    public getPlayerByQueueId = (id: number): Queue<P> => {
         return this.queue[id];
     }
 
     public makeMatch = (): void => {
         let playersMatched: P[] = [];
         let closestPlayerRankedLevel: ClosestPlayer<P>;
-        for(let i=0;i<this.queue.length;i++){
+        for (let i = 0; i < this.queue.length; i++) {
             let p1 = this.getPlayerByQueueId(i);
-            closestPlayerRankedLevel={
-                player:p1.player,
-                queueIndex:i,
-                delta:0
+            closestPlayerRankedLevel = {
+                player: p1.player,
+                queueIndex: i,
+                delta: 100
             }
             let isWaitingToLong = (Date.now() - p1.timeJoined >= this.instantMatchingWaitingTime)
-            for(let y=i;y<this.queue.length;y++){
+            for (let y = i; y < this.queue.length; y++) {
                 let p2 = this.getPlayerByQueueId(y);
                 if (this.isMatch(p1.player, p2.player, this.instantMatchingRankedLevelDelta)) {
                     this.queue.splice(i, 1);
-                    this.queue.splice(y-1, 1);
+                    this.queue.splice(y - 1, 1);
                     playersMatched.push(p1.player);
                     playersMatched.push(p2.player);
-                    this.resolver(playersMatched,"Instant match");
+                    this.resolver(playersMatched, "Instant match");
                     playersMatched = [];
-                    closestPlayerRankedLevel={
-                        player:p1.player,
-                        queueIndex:i,
-                        delta:0
+                    closestPlayerRankedLevel = {
+                        player: p1.player,
+                        queueIndex: i,
+                        delta: 100
                     }
                     break;
                 } else {
                     if (p2 && Date.now() - p2.timeJoined >= this.maxWaitingTime) {
                         this.rejected(p2.player);
                         break;
-                    } else if (isWaitingToLong) {
-                        const delta = this.getRankedLevelDelta(p1.player,p2.player)
-                        if(closestPlayerRankedLevel.player!=p2.player){
-                            if(delta < closestPlayerRankedLevel.delta || closestPlayerRankedLevel.delta===0){
-                                closestPlayerRankedLevel={
-                                    player: p2.player,
-                                    queueIndex : y,
-                                    delta
-                                };
-                            }
-                        }else{
-                            closestPlayerRankedLevel={
+                    } else if (isWaitingToLong && (p1.player !== p2.player)) {
+                        const delta = this.getRankedLevelDelta(p1.player, p2.player)
+                        if (delta < closestPlayerRankedLevel.delta && delta <= this.maxRankedLevelDelta) {
+                            closestPlayerRankedLevel = {
                                 player: p2.player,
-                                queueIndex : y,
+                                queueIndex: y,
                                 delta
                             };
+
                         }
                     }
                 }
             }
-            if(closestPlayerRankedLevel.player !== p1.player){
+            if (closestPlayerRankedLevel.player !== p1.player) {
                 this.queue.splice(i, 1);
-                this.queue.splice(closestPlayerRankedLevel.queueIndex-1, 1);
+                this.queue.splice(closestPlayerRankedLevel.queueIndex - 1, 1);
                 playersMatched.push(p1.player);
                 playersMatched.push(closestPlayerRankedLevel.player);
-                this.resolver(playersMatched,"Closest opponent");
+                this.resolver(playersMatched, "Closest opponent");
                 playersMatched = [];
             }
         }
@@ -193,13 +186,9 @@ export class MatchMaker<P> {
     private getRankedLevelDelta = (playerA: P, playerB: P): number => {
         const rankedLevelA: number = this.getRankedLevel(playerA);
         const rankedLevelB: number = this.getRankedLevel(playerB);
-        if(playerA!==playerB){
-            if (rankedLevelA >= rankedLevelB) {
-                return rankedLevelA - rankedLevelB;
-            } else if (rankedLevelB > rankedLevelA) {
-                return rankedLevelB - rankedLevelA;
-            }
+        if (rankedLevelA >= rankedLevelB) {
+            return rankedLevelA - rankedLevelB;
         }
-        return rankedLevelA;
+        return rankedLevelB - rankedLevelA;
     }
 }
