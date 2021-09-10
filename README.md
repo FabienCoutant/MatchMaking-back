@@ -12,6 +12,9 @@ option value and rankedLevel delta is equal or less than `maxRankedLevelDelta` o
 
 # Usage
 - `npm run server` (compile and run the server on port 8999)
-- open another terminal and run `npm run client-test`
+- open another terminal and run `npm run test-client`
 - On the server terminal you can see the matched users and those that waited to long and has been removed
 - On the client terminal you can see the output from client websocket
+
+# Testing
+- `npm run test`
