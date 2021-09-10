@@ -5,7 +5,7 @@
     "lib": [
       "es5", "es6", "dom", "dom.iterable"
     ],
-    "outDir": "build",
+    "outDir": "dist",
     "strict": true,
     "sourceMap": true,
     "typeRoots": [
