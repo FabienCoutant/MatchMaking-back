@@ -31,7 +31,7 @@ describe("---- Matching ----", () => {
                 }
             );
         });
-        it("should add 1 player to the matching pool", () => {
+        it("should add 1 player to the pool", () => {
             //setup Alice player
             const aliceData: IPlayerData = {
                 id: Math.floor(Math.random() * 1000),
@@ -50,7 +50,7 @@ describe("---- Matching ----", () => {
             expect(matchMaking.playersInQueue).eq(1);
             expect(matchMaking.getPlayerState(alice)).eq(IPlayerState.INQUEUE);
         });
-        it("should add 2 players to the matching pool", () => {
+        it("should add 2 players to the pool", () => {
             //setup Alice player
             const aliceData: IPlayerData = {
                 id: Math.floor(Math.random() * 1000),
@@ -142,6 +142,7 @@ describe("---- Matching ----", () => {
             expect(matchMaking.getPlayerState(bob)).eq(IPlayerState.NONE);
             expect(matchMaking.getPlayerState(carol)).eq(IPlayerState.INQUEUE);
         })
+        it("should revert ")
     });
     describe("  -- Matching --", () => {
         let matchMaking: any;

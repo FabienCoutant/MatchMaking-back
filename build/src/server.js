@@ -8,9 +8,9 @@ app.set("port", process.env.PORT || 8999);
 //initialize a simple http server
 const server = http.createServer(app);
 //initialize the WebSocket server instance
-websocket_1.socketServer({ server });
+(0, websocket_1.socketServer)({ server });
 //start server
 server.listen(app.get("port"), () => {
-    console.log(`Server started on post : ${app.get("port")}`);
+    console.log(`Server started on port : ${app.get("port")}`);
 });
 //# sourceMappingURL=server.js.map

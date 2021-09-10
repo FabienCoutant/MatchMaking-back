@@ -11,5 +11,5 @@ const server = http.createServer(app);
 socketServer({server})
 //start server
 server.listen(app.get("port"), () => {
-    console.log(`Server started on post : ${app.get("port")}`);
+    console.log(`Server started on port : ${app.get("port")}`);
 });

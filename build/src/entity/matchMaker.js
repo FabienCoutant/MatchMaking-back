@@ -14,7 +14,7 @@ var IPlayerState;
     IPlayerState[IPlayerState["PLAYING"] = 2] = "PLAYING";
 })(IPlayerState = exports.IPlayerState || (exports.IPlayerState = {}));
 class MatchMaker {
-    constructor(resolver, getKey, getRankedLevel, options) {
+    constructor(resolver, rejected, getKey, getRankedLevel, options) {
         this.push = (player) => {
             if (this.indexOnQueue(player) != -1)
                 throw Error(errorMessages.playerInQueue);
@@ -28,15 +28,69 @@ class MatchMaker {
             });
             return index;
         };
+        this.getPlayerByQueueId = (id) => {
+            return this.queue[id];
+        };
         this.makeMatch = () => {
-            if (this.queue.length < 2) {
-                return;
-            }
-            let playersMatched;
-            for (const p1 of this.queue) {
-                for (const p2 of this.queue) {
+            let playersMatched = [];
+            let closedPlayerRankedLevel;
+            for (let i = 0; i < this.queue.length; i++) {
+                let p1 = this.getPlayerByQueueId(i);
+                closedPlayerRankedLevel = {
+                    player: p1.player,
+                    queueIndex: i,
+                    delta: 0
+                };
+                let isWaitingToLong = (Date.now() - p1.timeJoined >= this.instantMatchingWaitingTime);
+                for (let y = i; y < this.queue.length; y++) {
+                    let p2 = this.getPlayerByQueueId(y);
                     if (this.isMatch(p1.player, p2.player, this.instantMatchingRankedLevelDelta)) {
+                        this.queue.splice(i, 1);
+                        this.queue.splice(y - 1, 1);
+                        playersMatched.push(p1.player);
+                        playersMatched.push(p2.player);
+                        this.resolver(playersMatched);
+                        playersMatched = [];
+                        closedPlayerRankedLevel = {
+                            player: p1.player,
+                            queueIndex: i,
+                            delta: 0
+                        };
+                        break;
                     }
+                    else {
+                        if (p2 && Date.now() - p2.timeJoined >= this.maxWaitingTime) {
+                            this.rejected(p2.player);
+                            break;
+                        }
+                        else if (isWaitingToLong) {
+                            const delta = this.getRankedLevelDelta(p1.player, p2.player);
+                            if (closedPlayerRankedLevel.player != p2.player) {
+                                if (delta < closedPlayerRankedLevel.delta || closedPlayerRankedLevel.delta === 0) {
+                                    closedPlayerRankedLevel = {
+                                        player: p2.player,
+                                        queueIndex: y,
+                                        delta
+                                    };
+                                }
+                            }
+                            else {
+                                closedPlayerRankedLevel = {
+                                    player: p2.player,
+                                    queueIndex: y,
+                                    delta
+                                };
+                            }
+                        }
+                    }
+                }
+                if (closedPlayerRankedLevel.player !== p1.player) {
+                    this.queue.splice(i, 1);
+                    this.queue.splice(closedPlayerRankedLevel.queueIndex - 1, 1);
+                    playersMatched.push(p1.player);
+                    playersMatched.push(closedPlayerRankedLevel.player);
+                    this.resolver(playersMatched);
+                    playersMatched = [];
                 }
             }
         };
@@ -63,15 +117,19 @@ class MatchMaker {
             this.inGame.push({ players, id: this.nextGameId++ });
             resolver(players);
         };
+        this.rejected = (player) => {
+            this.leaveQueue(player);
+            rejected(player);
+        };
         this.getKey = getKey;
         this.getRankedLevel = getRankedLevel;
         this.queue = [];
         this.inGame = [];
         this.nextGameId = Number.MIN_SAFE_INTEGER;
-        this.checkInterval = (options && options.checkInterval && options.checkInterval > 0 && options.checkInterval) || 3000;
         this.maxRankedLevelDelta = (options && options.maxRankedLevelDelta && options.maxRankedLevelDelta > 0 && options.maxRankedLevelDelta) || 20;
         this.instantMatchingRankedLevelDelta = (options && options.instantMatchingRankedLevelDelta && options.instantMatchingRankedLevelDelta > 0 && options.instantMatchingRankedLevelDelta) || 5;
-        this.maxWaitingTime = (options && options.maxWaitingTime) || 300000; //by default 5 minutes
+        this.maxWaitingTime = (options && options.maxWaitingTime && options.maxWaitingTime >= 10000 && options.maxWaitingTime) || 300000; //by default 5 minutes and must be > 10s
+        this.instantMatchingWaitingTime = (options && options.instantMatchingWaitingTime && options.instantMatchingWaitingTime > 0 && options.instantMatchingWaitingTime) || 30000; //by default 30s
     }
     get playersInQueue() {
         return this.queue.length;
@@ -93,22 +151,6 @@ class MatchMaker {
         if (index == -1)
             throw Error(errorMessages.playerNotInQueue);
         this.queue.splice(index, 1);
-    }
-    endGame(players) {
-        players = (players instanceof Array) ? players : [players];
-        let gameIndex = -1;
-        for (let player of players) {
-            let playerKey = this.getKey(player);
-            gameIndex = this.inGame.findIndex((game) => {
-                return game.players.find((gamePlayer) => playerKey == this.getKey(gamePlayer));
-            });
-            if (gameIndex != -1) {
-                break;
-            }
-        }
-        if (gameIndex == -1)
-            throw Error(errorMessages.gameDoesNotExists);
-        this.inGame.splice(gameIndex, 1);
     }
 }
 exports.MatchMaker = MatchMaker;

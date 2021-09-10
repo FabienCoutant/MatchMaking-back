@@ -1,6 +1,3 @@
-import {delay} from "../../tests/utils";
-import {Player} from "./player";
-
 let errorMessages = {
     playerInQueue: "Player is already in queue",
     playerNotInQueue: "Player is not in queue",
@@ -15,7 +12,6 @@ export enum IPlayerState {
 }
 
 export interface IMatchMakerOptions {
-    checkInterval?: number;
     instantMatchingRankedLevelDelta?: number;
     maxRankedLevelDelta?: number;
     maxWaitingTime?: number;
@@ -58,7 +54,13 @@ export class MatchMaker<P> {
         return this.queue.length;
     }
 
-    constructor(resolver: (players: P[]) => void, rejected: (player: P) => void, getKey: (player: P) => number, getRankedLevel: (player: P) => number, options?: IMatchMakerOptions) {
+    constructor(
+        resolver: (players: P[]) => void,
+        rejected: (player: P) => void,
+        getKey: (player: P) => number,
+        getRankedLevel: (player: P) => number,
+        options?: IMatchMakerOptions
+    ) {
         this.resolver = (players: P[]) => {
             this.inGame.push({players, id: this.nextGameId++});
             resolver(players);
