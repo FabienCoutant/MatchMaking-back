@@ -14,7 +14,7 @@ export interface MatchingPlayer {
 export const socketServer = (serverToBind: ServerOptions) => {
 
     const wss = new WebSocket.Server(serverToBind);
-    const playersPool = new Map<number, MatchingPlayer>();
+    const playersPool = new Map<string, MatchingPlayer>();
     const options = {
         checkInterval: 500,
         instantMatchingWaitingTime: 5000,
@@ -28,31 +28,50 @@ export const socketServer = (serverToBind: ServerOptions) => {
         console.log("Matching method: ", message)
         console.log("players Matched ",players)
         if (playerPoolA && playerPoolB) {
-            playerPoolA.socket.send(`
-            Matching method : ${message}
-            ${playerPoolA.player.getName()} (id : ${playerPoolA.player.getId()}, rankedLevel : ${playerPoolA.player.getRankedLevel()})
-            you were matched with
-            ${playerPoolB.player.getName()} (id : ${playerPoolB.player.getId()}, rankedLevel : ${playerPoolB.player.getRankedLevel()})
-            `);
-            playerPoolB.socket.send(`
-            Matching method : ${message}
-            ${playerPoolB.player.getName()} (id : ${playerPoolB.player.getId()}, rankedLevel : ${playerPoolB.player.getRankedLevel()})
-            you were matched with
-            ${playerPoolA.player.getName()} (id : ${playerPoolA.player.getId()}, rankedLevel : ${playerPoolA.player.getRankedLevel()})
-            `);
+            const playerAData = {
+                id:playerPoolA.player.getId(),
+                name:playerPoolA.player.getName(),
+                rankedLevel:playerPoolA.player.getRankedLevel()
+            }
+            const playerBData = {
+                id:playerPoolB.player.getId(),
+                name:playerPoolB.player.getName(),
+                rankedLevel:playerPoolB.player.getRankedLevel()
+            }
+            console.log(playerAData)
+            console.log(playerBData)
+            playerPoolA.socket.send(JSON.stringify({
+                type:"Match",
+                message:message,
+                currentPlayer:playerAData,
+                opponentPlayer:playerBData
+            }));
+            playerPoolB.socket.send(JSON.stringify({
+                type:"Match",
+                message:message,
+                currentPlayer:playerBData,
+                opponentPlayer:playerAData
+            }));
             playerPoolA.socket.close();
             playerPoolB.socket.close();
             playersPool.delete(playerPoolA.player.getId());
             playersPool.delete(playerPoolB.player.getId());
-
         }
     }
     const removePlayer = (player: Player) => {
         const playerPool = playersPool.get(player.getId());
         if (playerPool) {
-            playerPool.socket.send(`
-            ${playerPool.player.getName()} (id : ${playerPool.player.getId()}, rankedLevel : ${playerPool.player.getRankedLevel()}) didn't find a match
-            `);
+            const playerData = {
+                id:playerPool.player.getId(),
+                name:playerPool.player.getName(),
+                rankedLevel:playerPool.player.getRankedLevel()
+            }
+
+            playerPool.socket.send(JSON.stringify({
+                type:"NotFound",
+                message:"No opponents for you at the moment",
+                player:playerData
+            }))
             playerPool.socket.close();
             playersPool.delete(playerPool.player.getId());
         }
@@ -67,25 +86,44 @@ export const socketServer = (serverToBind: ServerOptions) => {
     )
 
     wss.on('connection', (ws: WebSocket, req:http.IncomingMessage) => {
-
-        //connection is up, let's add a simple event
         ws.on('message', (message: JSON) => {
-            //log the received message and send it back to the client
             console.log(JSON.parse(message.toString()));
-            const player = JSON.parse(message.toString());
-            const p: Player = new Player(player)
-            if (!playersPool.has(p.getId())) {
-                playersPool.set(p.getId(), {socket: ws, player: p});
-                matchMaking.push(p);
-                console.log("Player in queue",matchMaking.playersInQueue);
-                ws.send("Searching your opponent")
-            } else {
-                ws.close();
+            const data = JSON.parse(message.toString());
+            const p: Player = new Player(data.user)
+            if(data.type ==="Play"){
+                if (!playersPool.has(p.getId())) {
+                    playersPool.set(p.getId(), {socket: ws, player: p});
+                    matchMaking.push(p);
+                    console.log("Player in queue",matchMaking.playersInQueue);
+                    ws.send(JSON.stringify({
+                        type:"Search",
+                        message:"Searching your opponent"
+                    }))
+                } else {
+                    ws.close();
+                }
+
+            }else if(data.type === "Leave"){
+                const playerPool = playersPool.get(p.getId());
+                if (playerPool) {
+                    console.log("Player leave queue",matchMaking.playersInQueue);
+                    matchMaking.leaveQueue(p);
+                    ws.send(JSON.stringify({
+                        type:"Leave",
+                        message:"Your left the queue"
+                    }));
+                    playerPool.socket.close();
+                    playersPool.delete(playerPool.player.getId());
+                }
             }
         });
+
         const ip = req.socket.remoteAddress ? req.socket.remoteAddress.slice(7) : '';
         console.log('received connection from: ' + ip);
-        ws.send("connected")
+        ws.send(JSON.stringify({
+            type:"Connection",
+            message:"New connection"
+        }))
     });
 
 

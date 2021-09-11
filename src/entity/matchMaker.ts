@@ -35,7 +35,7 @@ interface ClosestPlayer<P> {
 export class MatchMaker<P> {
     protected resolver: (players: P[], text: string) => void;
     protected rejected: (player: P) => void;
-    protected getKey: (player: P) => number;
+    protected getKey: (player: P) => string;
     protected getRankedLevel: (player: P) => number;
     protected queue: Queue<P>[];
     protected inGame: Game<P>[];
@@ -55,7 +55,7 @@ export class MatchMaker<P> {
     constructor(
         resolver: (players: P[], message: string) => void,
         rejected: (player: P) => void,
-        getKey: (player: P) => number,
+        getKey: (player: P) => string,
         getRankedLevel: (player: P) => number,
         options?: IMatchMakerOptions
     ) {

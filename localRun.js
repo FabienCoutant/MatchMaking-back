@@ -1,17 +1,16 @@
 const WebSocket = require('ws');
+const faker = require("faker");
+const { v4: uuidv4 } = require('uuid');
 const url = 'ws://127.0.0.1:8999'; // SERVER ADDRESS
 
-let i = 1;
-
-function enter_mm() {
+function runTest() {
     const connection = new WebSocket(url);
     const player = {
-        id: Math.floor(Math.random() * 1000),
+        id: uuidv4(),
         rankedLevel: Math.floor(Math.random() * 100),
-        name: `Alice ${i}`,
-        spaceShip: ["Jumper", "Prospector", "Space Digger"]
+        name: faker.name.firstName()
     };
-    i++;
+
     connection.onopen = () => {
         connection.send(JSON.stringify(player));
     };
@@ -29,4 +28,4 @@ function enter_mm() {
     };
 }
 
-setInterval(() => enter_mm(), 500);
+setInterval(() => runTest(), 500);

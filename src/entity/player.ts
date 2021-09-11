@@ -1,29 +1,26 @@
 
 export interface IPlayerData {
-    id:number
+    id:string
     rankedLevel:number
     name:string
-    spaceShip:string[]
 }
 
 export class Player {
 
-    private id:number;
+    private id:string;
 
     private rankedLevel : number;
 
     private name : string;
 
-    private spaceShip : string[];
 
     constructor(initData:IPlayerData) {
         this.id = initData.id;
         this.name = initData.name;
         this.rankedLevel = initData.rankedLevel;
-        this.spaceShip = initData.spaceShip;
     }
 
-    getId():number{
+    getId():string{
         return this.id;
     }
 
@@ -34,13 +31,4 @@ export class Player {
     getName():string{
         return this.name
     }
-
-    getSpaceShipById(id:number):string{
-        return this.spaceShip[id];
-    }
-
-    getSpaceShipList():string[]{
-        return this.spaceShip;
-    }
-
 }
