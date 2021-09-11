@@ -11,7 +11,7 @@ export class MatchMakingController<P> extends MatchMaker<P> {
     constructor(
         resolver: (players: P[],message:string) => void,
         rejected: (player: P) => void,
-        getKey: (player: P) => number,
+        getKey: (player: P) => string,
         getRankedLevel: (player: P) => number,
         options?: IMatchMakerOptionsController
     ) {
